@@ -36,7 +36,7 @@
             android:layout_weight="1.2"
             android:layout_gravity="center"
             android:layout_toRightOf="@id/todaysteps"
-            android:gravity="center"
+            android:gravity="start"
             android:padding="5dp"
             android:textAlignment="gravity"
             android:textColor="@android:color/black"
