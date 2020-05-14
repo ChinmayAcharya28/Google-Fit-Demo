@@ -28,8 +28,8 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
 
     @SuppressLint("SetTextI18n")
     public void populateModel(DataPoint dataPoint, List<Field> fields){
-        mStartTime.setText("Start : "+ Utils.convertDate(dataPoint));
-        mEndTime.setText("End : "+Utils.convertDate(dataPoint));
+        mStartTime.setText("Start : "+ Utils.convertStartDate(dataPoint));
+        mEndTime.setText("End : "+Utils.convertEndDate(dataPoint));
         mSteps.setText("Steps : "+dataPoint.getValue(fields.get(0)));
     }
 }
