@@ -83,7 +83,7 @@
                 android:textColor="@android:color/white"
                 android:textAlignment="textEnd"
                 android:gravity="end"
-                android:text="Week Track" />
+                android:text="Date Order " />
 
             <ImageView
                 android:id="@+id/updownimage"
