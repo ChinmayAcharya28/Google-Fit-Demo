@@ -86,11 +86,12 @@
                 android:text="Week Track" />
 
             <ImageView
+                android:id="@+id/updownimage"
                 android:layout_width="25dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
-                android:src="@android:drawable/arrow_up_float"/>
+                android:src="@android:drawable/arrow_down_float"/>
         </LinearLayout>
     </LinearLayout>
 

@@ -1,4 +1,4 @@
-package com.fitbit.application;
+package com.fitbit.application.splash;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import androidx.annotation.Nullable;
+
+import com.fitbit.application.MainActivity;
+import com.fitbit.application.R;
 
 public class SplashActivity extends Activity {
 
