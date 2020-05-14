@@ -1,10 +1,13 @@
 package com.fitbit.application;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
@@ -13,6 +16,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fitbit.application.daily.model.DailyViewModel;
 import com.fitbit.application.history.adapter.HistoryAdapter;
 import com.fitbit.application.history.model.HistoryViewModel;
 import com.google.android.gms.common.ConnectionResult;
@@ -21,14 +25,17 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.data.DataPoint;
+import com.google.android.gms.fitness.result.DailyTotalResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     Context mContext;
+
+    TextView mDailyStepsValueTextView;
 
     RecyclerView mRecyclerView;
     HistoryAdapter mHistoryAdapter;
@@ -51,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .build();
         mApiClient.connect();
 
+        mDailyStepsValueTextView = (TextView) findViewById(R.id.todaystepsvalue);
         mRecyclerView = (RecyclerView) findViewById(R.id.item_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -63,6 +71,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 mHistoryAdapter = new HistoryAdapter(R.layout.history_row_view, (ArrayList<DataPoint>) dataPoints);
                 mRecyclerView.setAdapter(mHistoryAdapter);
                 mHistoryAdapter.notifyDataSetChanged();
+            }
+        });
+
+        new DailyViewModel().getLiveData(mApiClient).observe(this, new Observer<DailyTotalResult>() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onChanged(DailyTotalResult dailyTotalResult) {
+                DataPoint dataPoint = Objects.requireNonNull(dailyTotalResult.getTotal()).getDataPoints().get(0);
+                mDailyStepsValueTextView.setText(""+dataPoint.getValue(dataPoint.getDataType().getFields().get(0)));
             }
         });
 

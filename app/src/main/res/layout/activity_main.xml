@@ -15,9 +15,12 @@
             android:id="@+id/todaysteps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
             android:text="Today's Steps : "
             android:textSize="28sp"
             android:layout_centerVertical="true"
+            android:textAlignment="center"
+            android:gravity="center"
             android:padding="5dp"
             android:textColor="@android:color/black"/>
 
@@ -27,7 +30,7 @@
             android:layout_height="wrap_content"
             android:textSize="28sp"
             android:textAlignment="gravity"
-            android:gravity="center"
+            android:gravity="left"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/todaysteps"
             android:padding="5dp"
