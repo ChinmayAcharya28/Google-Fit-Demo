@@ -7,8 +7,8 @@ import android.os.Handler;
 
 import androidx.annotation.Nullable;
 
-import com.fitbit.application.MainActivity;
 import com.fitbit.application.R;
+import com.fitbit.application.login.LoginActivity;
 
 public class SplashActivity extends Activity {
 
@@ -20,8 +20,9 @@ public class SplashActivity extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                Intent intent = new Intent(SplashActivity.this, LoginActivity.class );
                 startActivity(intent);
+                finish();
             }
         }, 5000);
     }
