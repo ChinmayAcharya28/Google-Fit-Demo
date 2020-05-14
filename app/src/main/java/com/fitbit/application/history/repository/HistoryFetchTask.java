@@ -1,4 +1,4 @@
-package com.fitbit.application.history;
+package com.fitbit.application.history.repository;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -14,12 +14,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class WeekFetchTask extends AsyncTask<Void, DataReadResult, DataReadResult> {
+public class HistoryFetchTask extends AsyncTask<Void, DataReadResult, DataReadResult> {
 
     GoogleApiClient mApiClient;
     IHistoryCallback iHistoryCallback;
 
-    public WeekFetchTask(GoogleApiClient apiClient, IHistoryCallback iHistoryCallback){
+    public HistoryFetchTask(GoogleApiClient apiClient, IHistoryCallback iHistoryCallback){
         this.mApiClient = apiClient;
         this.iHistoryCallback = iHistoryCallback;
     }
@@ -30,7 +30,8 @@ public class WeekFetchTask extends AsyncTask<Void, DataReadResult, DataReadResul
         Date now = new Date();
         cal.setTime(now);
         long endTime = cal.getTimeInMillis();
-        cal.add(Calendar.WEEK_OF_YEAR, -1);
+
+        cal.add(Calendar.WEEK_OF_YEAR, -2);
         long startTime = cal.getTimeInMillis();
 
         java.text.DateFormat dateFormat = DateFormat.getDateInstance();

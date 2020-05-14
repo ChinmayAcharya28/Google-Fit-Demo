@@ -1,4 +1,4 @@
-package com.fitbit.application.history;
+package com.fitbit.application.history.repository;
 
 import com.google.android.gms.fitness.result.DataReadResult;
 

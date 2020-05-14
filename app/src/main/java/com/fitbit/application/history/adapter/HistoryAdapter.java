@@ -1,5 +1,6 @@
 package com.fitbit.application.history.adapter;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,16 +9,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fitbit.application.history.viewholder.HistoryViewHolder;
-import com.google.android.gms.fitness.data.DataSet;
+import com.google.android.gms.fitness.data.DataPoint;
 
 import java.util.ArrayList;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
 
     private int mListItemLayout;
-    private ArrayList<DataSet> mDataSetList;
+    private ArrayList<DataPoint> mDataSetList;
 
-    public HistoryAdapter(int layoutId, ArrayList<DataSet> itemList) {
+    public HistoryAdapter(int layoutId, ArrayList<DataPoint> itemList) {
         this.mListItemLayout = layoutId;
         this.mDataSetList = itemList;
     }
@@ -29,9 +30,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
         return new HistoryViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
-
+        DataPoint dataPoint = mDataSetList.get(position);
+        holder.populateModel(dataPoint, dataPoint.getDataType().getFields());
     }
 
     @Override

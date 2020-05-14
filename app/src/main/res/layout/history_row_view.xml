@@ -1,10 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/row_item"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:gravity="center"/>
-</LinearLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="130dp"
+    android:background="@android:color/white">
+
+    <ImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_gravity="bottom"
+        android:padding="20dp"
+        android:src="@mipmap/ic_launcher"/>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_toRightOf="@id/thumbnail"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/startTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:textColor="@android:color/black"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:id="@+id/endTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/startTime"
+                android:layout_margin="3dp"
+                android:textColor="@android:color/black"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:id="@+id/steps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/endTime"
+                android:gravity="center"
+                android:layout_margin="3dp"
+                android:textColor="@android:color/black"
+                android:textSize="15sp"/>
+        </RelativeLayout>
+
+</RelativeLayout>

@@ -34,7 +34,7 @@ public class LoginActivity extends Activity implements OnDataPointListener,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
         mContext = this;
 
         if (savedInstanceState != null) {
@@ -43,14 +43,14 @@ public class LoginActivity extends Activity implements OnDataPointListener,
 
         if(SharedPreference.getFirstTimeLoggedIn(mContext)){
             openNextActivity();
+        }else {
+            mApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(Fitness.SENSORS_API)
+                    .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
         }
-
-        mApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Fitness.SENSORS_API)
-                .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
     }
 
     @Override
