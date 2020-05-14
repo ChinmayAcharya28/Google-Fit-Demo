@@ -3,46 +3,103 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#20a94064"
     tools:context=".MainActivity">
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/dailysteps"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="120dp">
+        android:weightSum="2"
+        android:layout_centerHorizontal="true"
+        android:layout_height="120dp"
+        android:layout_margin="10dp"
+        android:background="@android:color/white"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/todaysteps"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:text="Today's Steps : "
-            android:textSize="28sp"
-            android:layout_centerVertical="true"
-            android:textAlignment="center"
-            android:gravity="center"
+            android:layout_weight="0.8"
+            android:layout_marginLeft="20dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="end"
             android:padding="5dp"
-            android:textColor="@android:color/black"/>
+            android:text="Today's Steps : "
+            android:textColor="@android:color/black"
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/todaystepsvalue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="28sp"
-            android:textAlignment="gravity"
-            android:gravity="left"
-            android:layout_centerVertical="true"
+            android:layout_weight="1.2"
+            android:layout_gravity="center"
             android:layout_toRightOf="@id/todaysteps"
+            android:gravity="center"
             android:padding="5dp"
-            android:textColor="@android:color/black"/>
-    </RelativeLayout>
+            android:textAlignment="gravity"
+            android:textColor="@android:color/black"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/representer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dailysteps"
+        android:layout_margin="10dp"
+        android:background="@android:color/darker_gray"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <TextView
+            android:id="@+id/last_two"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:textColor="@android:color/white"
+            android:text="Last Two Weeks"/>
+
+        <LinearLayout
+            android:id="@+id/dateorder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/last_two"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:layout_marginRight="5dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:textColor="@android:color/white"
+                android:textAlignment="textEnd"
+                android:gravity="end"
+                android:text="Week Track" />
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:src="@android:drawable/arrow_up_float"/>
+        </LinearLayout>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/item_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/representer"
         android:scrollbars="vertical"
-        android:layout_below="@id/dailysteps"
         tools:layout_editor_absoluteX="0dp" />
 
 </RelativeLayout>
