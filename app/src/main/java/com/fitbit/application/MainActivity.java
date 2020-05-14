@@ -1,8 +1,11 @@
 package com.fitbit.application;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -22,10 +25,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.fitbit.application.daily.model.DailyViewModel;
 import com.fitbit.application.history.adapter.HistoryAdapter;
 import com.fitbit.application.history.model.HistoryViewModel;
+import com.fitbit.application.login.LoginActivity;
+import com.fitbit.application.utils.SharedPreference;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.result.DailyTotalResult;
@@ -128,6 +135,34 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mApiClient.connect();
 
         return mApiClient;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        MenuItem item = menu.findItem(R.id.sign_out);
+
+        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (mApiClient.isConnected()) {
+                    mApiClient.clearDefaultAccountAndReconnect().setResultCallback(new ResultCallback<Status>() {
+
+                        @Override
+                        public void onResult(Status status) {
+                            mApiClient.disconnect();
+                            SharedPreference.setFirstTimeLoggedIn(mContext, false);
+                            Intent intent = new Intent(mContext, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+
+                }
+                return false;
+            }
+        });
+        return true;
     }
 
     @Override
