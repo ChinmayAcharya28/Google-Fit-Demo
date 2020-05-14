@@ -73,8 +73,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onChanged(DailyTotalResult dailyTotalResult) {
-                DataPoint dataPoint = Objects.requireNonNull(dailyTotalResult.getTotal()).getDataPoints().get(0);
-                mDailyStepsValueTextView.setText(""+dataPoint.getValue(dataPoint.getDataType().getFields().get(0)));
+                if(dailyTotalResult.getTotal().getDataPoints() != null && dailyTotalResult.getTotal().getDataPoints().size() > 0) {
+                    DataPoint dataPoint = Objects.requireNonNull(dailyTotalResult.getTotal()).getDataPoints().get(0);
+                    mDailyStepsValueTextView.setText("" + dataPoint.getValue(dataPoint.getDataType().getFields().get(0)));
+                }else{
+                    mDailyStepsValueTextView.setText("0");
+                }
             }
         });
 
