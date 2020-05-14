@@ -1,11 +1,15 @@
-package com.fitbit.application;
+package com.fitbit.application.login;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.fitbit.application.MainActivity;
+import com.fitbit.application.R;
+import com.fitbit.application.utils.SharedPreference;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -14,16 +18,7 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.data.DataPoint;
-import com.google.android.gms.fitness.data.DataSource;
-import com.google.android.gms.fitness.data.DataType;
-import com.google.android.gms.fitness.data.Field;
-import com.google.android.gms.fitness.data.Value;
-import com.google.android.gms.fitness.request.DataSourcesRequest;
 import com.google.android.gms.fitness.request.OnDataPointListener;
-import com.google.android.gms.fitness.request.SensorRequest;
-import com.google.android.gms.fitness.result.DataSourcesResult;
-
-import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends Activity implements OnDataPointListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -34,14 +29,20 @@ public class LoginActivity extends Activity implements OnDataPointListener,
 
     private boolean mAuthInProgress;
     private GoogleApiClient mApiClient;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mContext = this;
 
         if (savedInstanceState != null) {
             mAuthInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
+        }
+
+        if(SharedPreference.getFirstTimeLoggedIn(mContext)){
+            openNextActivity();
         }
 
         mApiClient = new GoogleApiClient.Builder(this)
@@ -73,7 +74,7 @@ public class LoginActivity extends Activity implements OnDataPointListener,
                 });
     }
 
-    private void registerFitnessDataListener(DataSource dataSource, DataType dataType) {
+    /*private void registerFitnessDataListener(DataSource dataSource, DataType dataType) {
 
         SensorRequest request = new SensorRequest.Builder()
                 .setDataSource( dataSource )
@@ -92,10 +93,14 @@ public class LoginActivity extends Activity implements OnDataPointListener,
                         }
                     }
                 });
-    }
+    }*/
 
     @Override
     public void onConnected(Bundle bundle) {
+
+        SharedPreference.setFirstTimeLoggedIn(mContext, true);
+        openNextActivity();
+      /*
         DataSourcesRequest dataSourceRequest = new DataSourcesRequest.Builder()
                 .setDataTypes( DataType.TYPE_STEP_COUNT_CUMULATIVE )
                 .setDataSourceTypes( DataSource.TYPE_RAW )
@@ -113,7 +118,14 @@ public class LoginActivity extends Activity implements OnDataPointListener,
         };
 
         Fitness.SensorsApi.findDataSources(mApiClient, dataSourceRequest)
-                .setResultCallback(dataSourcesResultCallback);
+                .setResultCallback(dataSourcesResultCallback);*/
+    }
+
+    private void openNextActivity() {
+
+        Intent intent = new Intent(mContext, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -151,7 +163,7 @@ public class LoginActivity extends Activity implements OnDataPointListener,
 
     @Override
     public void onDataPoint(DataPoint dataPoint) {
-        for( final Field field : dataPoint.getDataType().getFields() ) {
+       /* for( final Field field : dataPoint.getDataType().getFields() ) {
             final Value value = dataPoint.getValue( field );
             runOnUiThread(new Runnable() {
                 @Override
@@ -159,6 +171,6 @@ public class LoginActivity extends Activity implements OnDataPointListener,
                     Toast.makeText(getApplicationContext(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
                 }
             });
-        }
+        }*/
     }
 }
