@@ -1,7 +1,6 @@
 package com.fitbit.application.history.repository;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.fitness.Fitness;
@@ -9,7 +8,6 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -33,10 +31,6 @@ public class HistoryFetchTask extends AsyncTask<Void, DataReadResult, DataReadRe
 
         cal.add(Calendar.WEEK_OF_YEAR, -2);
         long startTime = cal.getTimeInMillis();
-
-        java.text.DateFormat dateFormat = DateFormat.getDateInstance();
-        Log.e("History", "Range Start: " + dateFormat.format(startTime));
-        Log.e("History", "Range End: " + dateFormat.format(endTime));
 
         DataReadRequest readRequest = new DataReadRequest.Builder()
                 .aggregate(DataType.TYPE_STEP_COUNT_DELTA, DataType.AGGREGATE_STEP_COUNT_DELTA)

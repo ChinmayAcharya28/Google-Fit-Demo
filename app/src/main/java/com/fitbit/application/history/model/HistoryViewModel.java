@@ -1,7 +1,5 @@
 package com.fitbit.application.history.model;
 
-import android.util.Log;
-
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -36,7 +34,6 @@ public class HistoryViewModel extends ViewModel {
         List<DataPoint> dataPoints = new ArrayList<>();
 
         if (dataReadResult.getBuckets().size() > 0) {
-            Log.e("History", "Number of buckets: " + dataReadResult.getBuckets().size());
             for (Bucket bucket : dataReadResult.getBuckets()) {
                 List<DataSet> dataSets = bucket.getDataSets();
                 for (DataSet dataSet : dataSets) {
@@ -44,7 +41,6 @@ public class HistoryViewModel extends ViewModel {
                 }
             }
         } else if (dataReadResult.getDataSets().size() > 0) {
-            Log.e("History", "Number of returned DataSets: " + dataReadResult.getDataSets().size());
             for (DataSet dataSet : dataReadResult.getDataSets()) {
                 dataPoints.addAll(dataSet.getDataPoints());
             }
