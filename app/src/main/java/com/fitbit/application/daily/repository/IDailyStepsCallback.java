@@ -1,7 +1,7 @@
 package com.fitbit.application.daily.repository;
 
-import com.google.android.gms.fitness.result.DailyTotalResult;
+import com.google.android.gms.fitness.result.DataReadResponse;
 
 public interface IDailyStepsCallback {
-    void onComplete(DailyTotalResult dataReadResult);
+    void onComplete(DataReadResponse dataReadResponse);
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
@@ -27,21 +27,21 @@ import com.fitbit.application.history.adapter.HistoryAdapter;
 import com.fitbit.application.history.model.HistoryViewModel;
 import com.fitbit.application.login.LoginActivity;
 import com.fitbit.application.utils.SharedPreference;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.fitness.Fitness;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataPoint;
-import com.google.android.gms.fitness.result.DailyTotalResult;
+import com.google.android.gms.fitness.data.DataSet;
+import com.google.android.gms.fitness.data.DataType;
+import com.google.android.gms.fitness.result.DataReadResponse;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class MainActivity extends AppCompatActivity {
 
     Context mContext;
     boolean isReverse;
@@ -54,20 +54,32 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     HistoryAdapter mHistoryAdapter;
 
     HistoryViewModel mHistoryViewModel;
-    private GoogleApiClient mApiClient;
+    DailyViewModel mDailyViewModel;
+    static GoogleSignInAccount mGoogleSignInAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
-
-        getApiClinet();
-
         initView();
 
+        initViewModel();
+
+        getHistorySteps();
+
+        getDailySteps();
+
+    }
+
+    public void initViewModel(){
         mHistoryViewModel =  ViewModelProviders.of((FragmentActivity) mContext).get(HistoryViewModel.class);
-        mHistoryViewModel.getLiveData(mApiClient).observe(this, new Observer<List<DataPoint>>() {
+        mDailyViewModel =  ViewModelProviders.of((FragmentActivity) mContext).get(DailyViewModel.class);
+    }
+
+
+    public void getHistorySteps() {
+        mHistoryViewModel.getLiveData(mContext).observe(this, new Observer<List<DataPoint>>() {
             @Override
             public void onChanged(List<DataPoint> dataPoints) {
                 mHistoryAdapter = new HistoryAdapter(R.layout.history_row_view, (ArrayList<DataPoint>) dataPoints);
@@ -75,23 +87,37 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 mHistoryAdapter.notifyDataSetChanged();
             }
         });
+    }
 
-        new DailyViewModel().getLiveData(mApiClient).observe(this, new Observer<DailyTotalResult>() {
+    public void getDailySteps() {
+        mDailyViewModel.getLiveData(mContext).observe(this, new Observer<DataReadResponse>() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
-            public void onChanged(DailyTotalResult dailyTotalResult) {
-                if(dailyTotalResult.getTotal().getDataPoints() != null && dailyTotalResult.getTotal().getDataPoints().size() > 0) {
-                    DataPoint dataPoint = Objects.requireNonNull(dailyTotalResult.getTotal()).getDataPoints().get(0);
-                    mDailyStepsValueTextView.setText("" + dataPoint.getValue(dataPoint.getDataType().getFields().get(0)));
-                }else{
-                    mDailyStepsValueTextView.setText("0");
+            public void onChanged(DataReadResponse dataReadResponse) {
+                if(dataReadResponse != null) {
+                    DataSet dataSet = dataReadResponse.getDataSet(DataType.TYPE_STEP_COUNT_DELTA);
+                    String count = mDailyViewModel.getSteps(dataSet.getDataPoints());
+                    if (!TextUtils.isEmpty(count)) {
+                        mDailyStepsValueTextView.setText("" + count);
+                    } else {
+                        mDailyStepsValueTextView.setText("0");
+                    }
                 }
             }
         });
-
     }
 
-    private void initView(){
+    public GoogleSignInAccount getApiClinet(GoogleSignInAccount signInAccount){
+
+        FitnessOptions mFitnessOptions = FitnessOptions.builder()
+                .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .build();
+
+        signInAccount = GoogleSignIn.getAccountForExtension(this, mFitnessOptions);
+        return signInAccount;
+    }
+
+    public void initView(){
         isReverse = true;
 
         mWeekAscOrDesc = (ImageView) findViewById(R.id.updownimage);
@@ -124,19 +150,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return linearLayoutManager;
     }
 
-    private GoogleApiClient getApiClinet(){
-        mApiClient = new GoogleApiClient.Builder(mContext)
-                .addApi(Fitness.SENSORS_API)
-                .addApi(Fitness.HISTORY_API)
-                .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
-                .addConnectionCallbacks(this)
-                .enableAutoManage(this, 0, this)
-                .build();
-        mApiClient.connect();
-
-        return mApiClient;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
@@ -145,38 +158,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (mApiClient.isConnected()) {
-                    mApiClient.clearDefaultAccountAndReconnect().setResultCallback(new ResultCallback<Status>() {
 
-                        @Override
-                        public void onResult(Status status) {
-                            mApiClient.disconnect();
-                            SharedPreference.setFirstTimeLoggedIn(mContext, false);
-                            Intent intent = new Intent(mContext, LoginActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    });
-
-                }
+               if(GoogleSignIn.getLastSignedInAccount(mContext) != null){
+                   GoogleSignInOptions signInOptions = GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN;
+                   GoogleSignIn.getClient(mContext, signInOptions).signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+                       @Override
+                       public void onComplete(@NonNull Task<Void> task) {
+                           SharedPreference.setFirstTimeLoggedIn(mContext, false);
+                           Intent intent = new Intent(mContext, LoginActivity.class);
+                           startActivity(intent);
+                           finish();
+                       }
+                   });
+               }
                 return false;
             }
         });
         return true;
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
+    public static void setClient(GoogleSignInAccount apiClinet) {
+       mGoogleSignInAccount = apiClinet;
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-
+    public static GoogleSignInAccount getClient(){
+        return mGoogleSignInAccount;
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
 }

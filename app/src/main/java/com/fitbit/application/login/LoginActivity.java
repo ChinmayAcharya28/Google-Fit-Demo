@@ -1,5 +1,6 @@
 package com.fitbit.application.login;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -13,28 +14,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.fitbit.application.MainActivity;
 import com.fitbit.application.R;
 import com.fitbit.application.utils.SharedPreference;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.fitness.Fitness;
-import com.google.android.gms.fitness.data.DataPoint;
-import com.google.android.gms.fitness.request.OnDataPointListener;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptionsExtension;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.fitness.FitnessOptions;
+import com.google.android.gms.fitness.data.DataType;
+import com.google.android.gms.tasks.Task;
 
-public class LoginActivity extends AppCompatActivity implements OnDataPointListener,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+public class LoginActivity extends AppCompatActivity {
 
     private static final int REQUEST_OAUTH = 1;
     private static final String AUTH_PENDING = "auth_state_pending";
 
     private boolean mAuthInProgress;
-    private GoogleApiClient mApiClient;
     private Context mContext;
 
     private Button mSignInButton;
+
+    private static final int RC_SIGN_IN = 9001;
+
+    private GoogleSignInOptionsExtension mFitnessOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +47,6 @@ public class LoginActivity extends AppCompatActivity implements OnDataPointListe
         if (savedInstanceState != null) {
             mAuthInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
-
         initViews();
 
         if(SharedPreference.getFirstTimeLoggedIn(mContext)){
@@ -52,99 +54,64 @@ public class LoginActivity extends AppCompatActivity implements OnDataPointListe
         }
     }
 
-    private void initViews() {
+    public void initViews() {
         mSignInButton = (Button) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getApiClinet().connect();
-
+                GoogleSignInOptions signInOptions = GoogleSignInOptions.DEFAULT_SIGN_IN;
+                GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(mContext, signInOptions);
+                Intent intent = googleSignInClient.getSignInIntent();
+                startActivityForResult(intent, RC_SIGN_IN);
             }
         });
     }
 
-    private GoogleApiClient getApiClinet(){
-        mApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Fitness.SENSORS_API)
-                .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
+    public GoogleSignInAccount getApiClinet(GoogleSignInAccount mSignInClient){
+
+        mFitnessOptions = FitnessOptions.builder()
+                .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
                 .build();
 
-        return mApiClient;
+        mSignInClient = GoogleSignIn.getAccountForExtension(this, mFitnessOptions);
+        return mSignInClient;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(mApiClient != null) {
-            mApiClient.connect();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(mApiClient != null) {
-            Fitness.SensorsApi.remove(mApiClient, this)
-                    .setResultCallback(new ResultCallback<Status>() {
-                        @Override
-                        public void onResult(Status status) {
-                            if (status.isSuccess()) {
-                                mApiClient.disconnect();
-                            }
-                        }
-                    });
-        }
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        SharedPreference.setFirstTimeLoggedIn(mContext, true);
-        openNextActivity();
-    }
-
-    private void openNextActivity() {
+    public void openNextActivity() {
         Intent intent = new Intent(mContext, MainActivity.class);
         startActivity(intent);
         finish();
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        if( !mAuthInProgress) {
-            try {
-                mAuthInProgress = true;
-                connectionResult.startResolutionForResult( LoginActivity.this, REQUEST_OAUTH );
-            } catch(IntentSender.SendIntentException e ) {
-                Log.e( "StayFit", "sendingIntentException " + e.getMessage() );
-            }
-        } else {
-            Log.e( "StayFit", "Authentication In Progress" );
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if( requestCode == REQUEST_OAUTH ) {
-            mAuthInProgress = false;
-            if( resultCode == RESULT_OK ) {
-                if( !mApiClient.isConnecting() && !mApiClient.isConnected() ) {
-                    mApiClient.connect();
+        if (requestCode == RC_SIGN_IN) {
+            boolean isException = false;
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            if (task.isSuccessful()) {
+                try {
+                    GoogleSignInAccount googleSignIn = task.getResult(ApiException.class);
+                } catch (ApiException e) {
+                    isException = true;
+                    ResolvableApiException apiException = ((ResolvableApiException)e);
+                    try {
+                        apiException.startResolutionForResult((Activity) mContext, RC_SIGN_IN);
+                    } catch (IntentSender.SendIntentException ex) {
+                        ex.printStackTrace();
+                    }
                 }
-            } else if( resultCode == RESULT_CANCELED ) {
-                Log.e( "StayFit", "RESULT_CANCELED" );
+
+                if(!isException) {
+                    mAuthInProgress = true;
+                    SharedPreference.setFirstTimeLoggedIn(mContext, true);
+                    openNextActivity();
+                }
+            } else {
+                Log.e( "StayFit", "Authentication failed" );
             }
-        } else {
-            Log.e("StayFit", "RequestCode NOT request_oauth");
         }
     }
 
-    @Override
-    public void onConnectionSuspended(int i) { }
 
-    @Override
-    public void onDataPoint(DataPoint dataPoint) {
 
-    }
 }

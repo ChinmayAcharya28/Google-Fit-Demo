@@ -1,7 +1,7 @@
 package com.fitbit.application.history.repository;
 
-import com.google.android.gms.fitness.result.DataReadResult;
+import com.google.android.gms.fitness.result.DataReadResponse;
 
 public interface IHistoryCallback {
-    void onComplete(DataReadResult dataReadResult);
+    void onComplete(DataReadResponse dataReadResponse);
 }
