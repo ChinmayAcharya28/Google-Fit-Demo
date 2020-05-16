@@ -64,9 +64,21 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;
         initView();
 
+        initViewModel();
+
+        getHistorySteps();
+
+        getDailySteps();
+
+    }
+
+    public void initViewModel(){
         mHistoryViewModel =  ViewModelProviders.of((FragmentActivity) mContext).get(HistoryViewModel.class);
         mDailyViewModel =  ViewModelProviders.of((FragmentActivity) mContext).get(DailyViewModel.class);
+    }
 
+
+    public void getHistorySteps() {
         mHistoryViewModel.getLiveData(mContext).observe(this, new Observer<List<DataPoint>>() {
             @Override
             public void onChanged(List<DataPoint> dataPoints) {
@@ -75,7 +87,9 @@ public class MainActivity extends AppCompatActivity {
                 mHistoryAdapter.notifyDataSetChanged();
             }
         });
+    }
 
+    public void getDailySteps() {
         mDailyViewModel.getLiveData(mContext).observe(this, new Observer<DataReadResponse>() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
@@ -91,20 +105,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
-    private GoogleSignInAccount getApiClinet(GoogleSignInAccount mSignInClient){
+    public GoogleSignInAccount getApiClinet(GoogleSignInAccount signInAccount){
 
         FitnessOptions mFitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
                 .build();
 
-        mSignInClient = GoogleSignIn.getAccountForExtension(this, mFitnessOptions);
-        return mSignInClient;
+        signInAccount = GoogleSignIn.getAccountForExtension(this, mFitnessOptions);
+        return signInAccount;
     }
 
-    private void initView(){
+    public void initView(){
         isReverse = true;
 
         mWeekAscOrDesc = (ImageView) findViewById(R.id.updownimage);

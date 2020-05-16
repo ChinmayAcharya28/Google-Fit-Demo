@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void initViews() {
+    public void initViews() {
         mSignInButton = (Button) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private GoogleSignInAccount getApiClinet(GoogleSignInAccount mSignInClient){
+    public GoogleSignInAccount getApiClinet(GoogleSignInAccount mSignInClient){
 
         mFitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
         return mSignInClient;
     }
 
-    private void openNextActivity() {
+    public void openNextActivity() {
         Intent intent = new Intent(mContext, MainActivity.class);
         startActivity(intent);
         finish();
