@@ -1,7 +1,9 @@
 package com.fitbit.application.login;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +20,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptionsExtension;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.tasks.Task;
@@ -83,16 +86,25 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_SIGN_IN) {
+            boolean isException = false;
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             if (task.isSuccessful()) {
                 try {
                     GoogleSignInAccount googleSignIn = task.getResult(ApiException.class);
-                    MainActivity.setClient(getApiClinet(googleSignIn));
+                } catch (ApiException e) {
+                    isException = true;
+                    ResolvableApiException apiException = ((ResolvableApiException)e);
+                    try {
+                        apiException.startResolutionForResult((Activity) mContext, RC_SIGN_IN);
+                    } catch (IntentSender.SendIntentException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                if(!isException) {
                     mAuthInProgress = true;
                     SharedPreference.setFirstTimeLoggedIn(mContext, true);
                     openNextActivity();
-                } catch (ApiException e) {
-                    e.printStackTrace();
                 }
             } else {
                 Log.e( "StayFit", "Authentication failed" );
