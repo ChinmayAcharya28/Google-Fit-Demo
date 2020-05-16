@@ -1,29 +1,36 @@
 package com.fitbit.application.history.repository;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.fitbit.application.MainActivity;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.request.DataReadRequest;
-import com.google.android.gms.fitness.result.DataReadResult;
+import com.google.android.gms.fitness.result.DataReadResponse;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class HistoryFetchTask extends AsyncTask<Void, DataReadResult, DataReadResult> {
+public class HistoryFetchTask extends AsyncTask<Void, DataReadResponse, DataReadResponse> {
 
-    GoogleApiClient mApiClient;
-    IHistoryCallback iHistoryCallback;
+    private Context mContext;
+    private IHistoryCallback iHistoryCallback;
 
-    public HistoryFetchTask(GoogleApiClient apiClient, IHistoryCallback iHistoryCallback){
-        this.mApiClient = apiClient;
+    public HistoryFetchTask(Context context, IHistoryCallback iHistoryCallback){
+        this.mContext = context;
         this.iHistoryCallback = iHistoryCallback;
     }
 
     @Override
-    protected DataReadResult doInBackground(Void... voids) {
+    protected DataReadResponse doInBackground(Void... voids) {
+        DataReadResponse dataReadResponse = null;
         Calendar cal = Calendar.getInstance();
         Date now = new Date();
         cal.setTime(now);
@@ -32,21 +39,29 @@ public class HistoryFetchTask extends AsyncTask<Void, DataReadResult, DataReadRe
         cal.add(Calendar.WEEK_OF_YEAR, -2);
         long startTime = cal.getTimeInMillis();
 
-        DataReadRequest readRequest = new DataReadRequest.Builder()
-                .aggregate(DataType.TYPE_STEP_COUNT_DELTA, DataType.AGGREGATE_STEP_COUNT_DELTA)
-                .bucketByTime(1, TimeUnit.DAYS)
-                .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-                .build();
+        GoogleSignInAccount mGoogleSignInAccount = GoogleSignIn.getLastSignedInAccount(mContext);
+        if(mGoogleSignInAccount == null){
+            mGoogleSignInAccount = MainActivity.getClient();
+        }
 
-        DataReadResult dataReadResult = Fitness.HistoryApi.readData(mApiClient, readRequest).await(1, TimeUnit.MINUTES);
+        Task<DataReadResponse> response = Fitness.getHistoryClient((Activity) mContext, mGoogleSignInAccount)
+                .readData(new DataReadRequest.Builder()
+                        .read(DataType.TYPE_STEP_COUNT_DELTA)
+                        .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+                        .build());
 
-        return dataReadResult;
+        try {
+            dataReadResponse = Tasks.await(response, 30, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dataReadResponse;
     }
 
     @Override
-    protected void onPostExecute(DataReadResult dataReadResult) {
-        super.onPostExecute(dataReadResult);
+    protected void onPostExecute(DataReadResponse dataReadResponse) {
+        super.onPostExecute(dataReadResponse);
 
-        iHistoryCallback.onComplete(dataReadResult);
+        iHistoryCallback.onComplete(dataReadResponse);
     }
 }
