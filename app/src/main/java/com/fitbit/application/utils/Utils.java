@@ -3,15 +3,17 @@ package com.fitbit.application.utils;
 import com.google.android.gms.fitness.data.DataPoint;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
 
     public static String convertStartDate(DataPoint dataPoint){
-        DateFormat dateFormat = DateFormat.getDateInstance();
-        DateFormat timeFormat = DateFormat.getTimeInstance();
+        Date date=new Date(dataPoint.getStartTime(TimeUnit.MILLISECONDS));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 
-        return dateFormat.format(dataPoint.getStartTime(TimeUnit.MILLISECONDS)) + " " + timeFormat.format(dataPoint.getStartTime(TimeUnit.MILLISECONDS));
+        return dateFormat.format(date);
     }
 
     public static String convertEndDate(DataPoint dataPoint){

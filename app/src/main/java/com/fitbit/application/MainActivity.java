@@ -25,13 +25,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.fitbit.application.daily.model.DailyViewModel;
 import com.fitbit.application.history.adapter.HistoryAdapter;
 import com.fitbit.application.history.model.HistoryViewModel;
+import com.fitbit.application.history.model.StepsModel;
 import com.fitbit.application.login.LoginActivity;
 import com.fitbit.application.utils.SharedPreference;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.fitness.FitnessOptions;
-import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.result.DataReadResponse;
@@ -79,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void getHistorySteps() {
-        mHistoryViewModel.getLiveData(mContext).observe(this, new Observer<List<DataPoint>>() {
+        mHistoryViewModel.getLiveData(mContext).observe(this, new Observer<List<StepsModel>>() {
             @Override
-            public void onChanged(List<DataPoint> dataPoints) {
-                mHistoryAdapter = new HistoryAdapter(R.layout.history_row_view, (ArrayList<DataPoint>) dataPoints);
+            public void onChanged(List<StepsModel> stepsModels) {
+                mHistoryAdapter = new HistoryAdapter(R.layout.history_row_view, (ArrayList<StepsModel>) stepsModels);
                 mRecyclerView.setAdapter(mHistoryAdapter);
                 mHistoryAdapter.notifyDataSetChanged();
             }

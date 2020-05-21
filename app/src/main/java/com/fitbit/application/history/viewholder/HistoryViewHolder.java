@@ -7,11 +7,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fitbit.application.R;
-import com.fitbit.application.utils.Utils;
-import com.google.android.gms.fitness.data.DataPoint;
-import com.google.android.gms.fitness.data.Field;
-
-import java.util.List;
+import com.fitbit.application.history.model.StepsModel;
 
 public class HistoryViewHolder extends RecyclerView.ViewHolder {
 
@@ -23,13 +19,14 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         mStartTime = (TextView) itemView.findViewById(R.id.startTime);
         mEndTime = (TextView) itemView.findViewById(R.id.endTime);
+        mEndTime.setVisibility(View.GONE);
         mSteps = (TextView) itemView.findViewById(R.id.steps);
     }
 
     @SuppressLint("SetTextI18n")
-    public void populateModel(DataPoint dataPoint, List<Field> fields){
-        mStartTime.setText("Start : "+ Utils.convertStartDate(dataPoint));
-        mEndTime.setText("End : "+Utils.convertEndDate(dataPoint));
-        mSteps.setText("Steps : "+dataPoint.getValue(fields.get(0)));
+    public void populateModel(StepsModel stepsModel){
+        mStartTime.setText("Date : "+ stepsModel.getDate());
+       // mEndTime.setText("End : "+Utils.convertEndDate(dataPoint));
+        mSteps.setText("Steps : "+ stepsModel.getValue());
     }
 }
