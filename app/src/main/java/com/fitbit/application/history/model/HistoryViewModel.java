@@ -85,7 +85,7 @@ public class HistoryViewModel extends ViewModel {
 
     public void sortDate(List<StepsModel> stepsModels){
         Collections.sort(stepsModels, new Comparator<StepsModel>() {
-            DateFormat f = new SimpleDateFormat("MM/dd/yy");
+            DateFormat f = new SimpleDateFormat(Utils.DATE_FORMAT);
             @Override
             public int compare(StepsModel o1, StepsModel o2) {
                 try {
