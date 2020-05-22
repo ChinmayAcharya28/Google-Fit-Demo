@@ -20,6 +20,14 @@ public class Utils {
         return dateFormat.format(date);
     }
 
+    public static boolean isToday(DataPoint dataPoint){
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+
+        return (dateFormat.format(date).equalsIgnoreCase(convertStartDate(dataPoint)));
+
+    }
+
     public static String formatToYesterdayOrToday(String date) {
         Date dateTime = null;
         try {

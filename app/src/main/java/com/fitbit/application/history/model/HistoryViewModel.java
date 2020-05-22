@@ -52,22 +52,24 @@ public class HistoryViewModel extends ViewModel {
                 for (int i = 0; i < dataPoints.size(); i++) {
                     DataPoint dataPoint = dataPoints.get(i);
 
-                    String date = Utils.convertStartDate(dataPoint);
-                    List<Field> fields = dataPoint.getDataType().getFields();
-                    int value  = 0;
+                    if(!Utils.isToday(dataPoint)) {
+                        String date = Utils.convertStartDate(dataPoint);
+                        List<Field> fields = dataPoint.getDataType().getFields();
+                        int value = 0;
 
-                    if(fields != null && fields.size() > 0)
-                        for (int j = 0; j < fields.size(); j++) {
-                            if(fields.get(j).equals(Field.FIELD_STEPS)) {
-                                 value = dataPoint.getValue(fields.get(j)).asInt();
+                        if (fields != null && fields.size() > 0)
+                            for (int j = 0; j < fields.size(); j++) {
+                                if (fields.get(j).equals(Field.FIELD_STEPS)) {
+                                    value = dataPoint.getValue(fields.get(j)).asInt();
+                                }
                             }
-                        }
 
-                    if(map != null && map.containsKey(date)){
-                        int total = value + map.get(date);
-                        map.put(date, total);
-                    }else{
-                        map.put(date, value);
+                        if (map != null && map.containsKey(date)) {
+                            int total = value + map.get(date);
+                            map.put(date, total);
+                        } else {
+                            map.put(date, value);
+                        }
                     }
                 }
 
