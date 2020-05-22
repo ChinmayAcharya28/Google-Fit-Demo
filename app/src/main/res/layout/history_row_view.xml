@@ -38,6 +38,8 @@
             android:layout_toRightOf="@id/thumbnail"
             android:layout_margin="3dp"
             android:gravity="center"
+            android:typeface="normal"
+            android:textStyle="normal"
             android:textColor="@android:color/black"
             android:textSize="20sp" />
 
