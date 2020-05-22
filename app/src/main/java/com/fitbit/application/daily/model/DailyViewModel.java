@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.fitbit.application.daily.repository.CurrentStepFetchTask;
 import com.fitbit.application.daily.repository.IDailyStepsCallback;
+import com.fitbit.application.utils.Utils;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.result.DataReadResponse;
 
@@ -31,8 +32,10 @@ public class DailyViewModel extends ViewModel {
     public String getSteps(List<DataPoint> dataPoints) {
         int count = 0;
         if(dataPoints != null && dataPoints.size() > 0) {
-            for (DataPoint dataPoint: dataPoints)
+            for (DataPoint dataPoint: dataPoints) {
+                if(Utils.isToday(dataPoint))
                 count = count + dataPoint.getValue(dataPoint.getDataType().getFields().get(0)).asInt();
+            }
         }
         return count+"";
     }
