@@ -14,6 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".login.LoginActivity"
+            android:launchMode="singleInstance"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -23,6 +24,7 @@
         </activity>
 
         <activity android:name=".MainActivity"
+            android:launchMode="singleInstance"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -30,7 +32,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".splash.SplashActivity">
+        <activity android:name=".splash.SplashActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
