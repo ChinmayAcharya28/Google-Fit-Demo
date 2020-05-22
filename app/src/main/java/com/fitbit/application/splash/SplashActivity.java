@@ -7,8 +7,10 @@ import android.os.Handler;
 
 import androidx.annotation.Nullable;
 
+import com.fitbit.application.MainActivity;
 import com.fitbit.application.R;
 import com.fitbit.application.login.LoginActivity;
+import com.fitbit.application.utils.SharedPreference;
 
 public class SplashActivity extends Activity {
 
@@ -20,10 +22,19 @@ public class SplashActivity extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(SplashActivity.this, LoginActivity.class );
-                startActivity(intent);
-                finish();
+                if(SharedPreference.getFirstTimeLoggedIn(SplashActivity.this)){
+                    openNextActivity(true, MainActivity.class);
+                }else{
+                    openNextActivity(true, LoginActivity.class);
+                }
+
             }
         }, 5000);
+    }
+
+    private void openNextActivity(boolean b, Class activity) {
+        Intent intent = new Intent(SplashActivity.this, activity);
+        startActivity(intent);
+        finish();
     }
 }
