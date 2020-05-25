@@ -10,7 +10,6 @@ import com.fitbit.application.history.repository.IHistoryCallback;
 import com.fitbit.application.utils.Utils;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
-import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.result.DataReadResponse;
 
@@ -42,47 +41,45 @@ public class HistoryViewModel extends ViewModel {
     private void setDataPoint(DataReadResponse dataReadResponse) {
 
         if(dataReadResponse != null) {
-            DataSet dataSet = dataReadResponse.getDataSet(DataType.TYPE_STEP_COUNT_DELTA);
+            List<StepsModel> stepsModels = new ArrayList<>();
 
-            if(dataSet != null) {
-                List<StepsModel> stepsModels = new ArrayList<>();
-                List<DataPoint> dataPoints = new ArrayList<>(dataSet.getDataPoints());
+            for (int i = 0; i < dataReadResponse.getBuckets().size(); i++) {
 
-                if(dataPoints.size() > 0)
-                for (int i = 0; i < dataPoints.size(); i++) {
-                    DataPoint dataPoint = dataPoints.get(i);
+                List<DataSet> dataSets = dataReadResponse.getBuckets().get(i).getDataSets();
 
-                    if(!Utils.isToday(dataPoint)) {
-                        String date = Utils.convertStartDate(dataPoint);
-                        List<Field> fields = dataPoint.getDataType().getFields();
-                        int value = 0;
+                for (int j = 0; j < dataSets.size(); j++) {
+                    DataSet dataSet = dataSets.get(j);
+                    List<DataPoint> dataPoints =  dataSet.getDataPoints();
 
-                        if (fields != null && fields.size() > 0)
-                            for (int j = 0; j < fields.size(); j++) {
-                                if (fields.get(j).equals(Field.FIELD_STEPS)) {
-                                    value = dataPoint.getValue(fields.get(j)).asInt();
-                                }
+                    for (int k = 0; k < dataPoints.size(); k++) {
+                        map = new HashMap<>();
+                        String date = Utils.convertStartDate(dataPoints.get(k));
+                        DataPoint dataPoint = dataPoints.get(k);
+                        List<Field> fields = dataPoints.get(k).getDataType().getFields();
+
+                        for (int l = 0; l < fields.size(); l++) {
+                            Field field = fields.get(l);
+                            int value = 0;
+                            if(field.getName().equalsIgnoreCase("steps")) {
+                                value = dataPoint.getValue(fields.get(l)).asInt();
+                                map.put(date, value);
                             }
-
-                        if (map != null && map.containsKey(date)) {
-                            int total = value + map.get(date);
-                            map.put(date, total);
-                        } else {
-                            map.put(date, value);
                         }
                     }
+
                 }
 
                 if(map != null && map.size() > 0)
-                for (String date : map.keySet()) {
-                    int value = map.get(date);
-                    StepsModel stepsModel = new StepsModel(date, value);
-                    stepsModels.add(stepsModel);
-                }
+                    for (String date : map.keySet()) {
+                        int value = map.get(date);
+                        StepsModel stepsModel = new StepsModel(date, value);
+                        stepsModels.add(stepsModel);
+                    }
                 sortDate(stepsModels);
                 mLiveData.setValue(stepsModels);
             }
-        }
+
+            }
     }
 
     public void sortDate(List<StepsModel> stepsModels){

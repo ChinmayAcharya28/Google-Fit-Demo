@@ -20,11 +20,18 @@ public class Utils {
         return dateFormat.format(date);
     }
 
+   /* public static String convertEndDate(DataPoint dataPoint){
+        Date date=new Date(dataPoint.getEndTime(TimeUnit.MILLISECONDS));
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+
+        return dateFormat.format(date);
+    }*/
+
     public static boolean isToday(DataPoint dataPoint){
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
-        return (dateFormat.format(date).equalsIgnoreCase(convertStartDate(dataPoint)));
+        return (dateFormat.format(date).equalsIgnoreCase(convertStartDate(dataPoint))) && (dateFormat.format(date).equalsIgnoreCase(convertNewEndDate(dataPoint)));
 
     }
 
@@ -56,5 +63,12 @@ public class Utils {
         DateFormat timeFormat = DateFormat.getTimeInstance();
 
         return dateFormat.format(dataPoint.getEndTime(TimeUnit.MILLISECONDS)) + " " + timeFormat.format(dataPoint.getEndTime(TimeUnit.MILLISECONDS));
+    }
+
+    public static String convertNewEndDate(DataPoint dataPoint){
+        Date date=new Date(dataPoint.getStartTime(TimeUnit.MILLISECONDS));
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+
+        return dateFormat.format(date);
     }
 }
