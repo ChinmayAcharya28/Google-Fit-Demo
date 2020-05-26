@@ -42,7 +42,7 @@ public class HistoryViewModel extends ViewModel {
 
         if(dataReadResponse != null) {
             List<StepsModel> stepsModels = new ArrayList<>();
-
+            map = new HashMap<>();
             for (int i = 0; i < dataReadResponse.getBuckets().size(); i++) {
 
                 List<DataSet> dataSets = dataReadResponse.getBuckets().get(i).getDataSets();
@@ -52,7 +52,7 @@ public class HistoryViewModel extends ViewModel {
                     List<DataPoint> dataPoints =  dataSet.getDataPoints();
 
                     for (int k = 0; k < dataPoints.size(); k++) {
-                        map = new HashMap<>();
+
                         String date = Utils.convertStartDate(dataPoints.get(k));
                         DataPoint dataPoint = dataPoints.get(k);
                         List<Field> fields = dataPoints.get(k).getDataType().getFields();
@@ -62,24 +62,26 @@ public class HistoryViewModel extends ViewModel {
                             int value = 0;
                             if(field.getName().equalsIgnoreCase("steps")) {
                                 value = dataPoint.getValue(fields.get(l)).asInt();
-                                map.put(date, value);
+                                if(!map.containsKey(date)) {
+                                    map.put(date, value);
+                                }
                             }
                         }
                     }
 
                 }
-
-                if(map != null && map.size() > 0)
-                    for (String date : map.keySet()) {
-                        int value = map.get(date);
-                        StepsModel stepsModel = new StepsModel(date, value);
-                        stepsModels.add(stepsModel);
-                    }
-                sortDate(stepsModels);
-                mLiveData.setValue(stepsModels);
             }
 
-            }
+            if(map != null && map.size() > 0)
+                for (String date : map.keySet()) {
+                    int value = map.get(date);
+                    StepsModel stepsModel = new StepsModel(date, value);
+                    stepsModels.add(stepsModel);
+                }
+            sortDate(stepsModels);
+            mLiveData.setValue(stepsModels);
+
+        }
     }
 
     public void sortDate(List<StepsModel> stepsModels){
