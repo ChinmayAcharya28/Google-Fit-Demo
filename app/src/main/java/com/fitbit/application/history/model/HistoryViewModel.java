@@ -44,6 +44,7 @@ public class HistoryViewModel extends ViewModel {
         if(dataReadResponse != null) {
             DataSet dataSet = dataReadResponse.getDataSet(DataType.TYPE_STEP_COUNT_DELTA);
 
+
             if(dataSet != null) {
                 List<StepsModel> stepsModels = new ArrayList<>();
                 List<DataPoint> dataPoints = new ArrayList<>(dataSet.getDataPoints());
