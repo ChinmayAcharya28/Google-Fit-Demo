@@ -14,6 +14,7 @@ import com.google.android.gms.fitness.result.DataReadResponse;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +33,11 @@ public class HistoryFetchTask extends AsyncTask<Void, DataReadResponse, DataRead
     protected DataReadResponse doInBackground(Void... voids) {
         DataReadResponse dataReadResponse = null;
         Calendar cal = Calendar.getInstance();
-        Date now = new Date();
-        cal.setTime(now);
+        cal.setTime(new Date());
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         long endTime = cal.getTimeInMillis();
 
         cal.add(Calendar.WEEK_OF_YEAR, -2);
@@ -46,9 +50,9 @@ public class HistoryFetchTask extends AsyncTask<Void, DataReadResponse, DataRead
 
         Task<DataReadResponse> response = Fitness.getHistoryClient((Activity) mContext, mGoogleSignInAccount)
                 .readData(new DataReadRequest.Builder()
-                        .read(DataType.TYPE_STEP_COUNT_DELTA)
-                        .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-                        .build());
+                .read(DataType.TYPE_STEP_COUNT_DELTA)
+                .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+                .build());
 
         try {
             dataReadResponse = Tasks.await(response, 30, TimeUnit.SECONDS);

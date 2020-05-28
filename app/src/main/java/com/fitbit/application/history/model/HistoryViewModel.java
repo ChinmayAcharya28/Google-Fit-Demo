@@ -52,7 +52,7 @@ public class HistoryViewModel extends ViewModel {
                 for (int i = 0; i < dataPoints.size(); i++) {
                     DataPoint dataPoint = dataPoints.get(i);
 
-                    if(!Utils.isToday(dataPoint)) {
+                    if(!Utils.isToday(dataPoint) && Utils.compareDate(dataPoint)) {
                         String date = Utils.convertStartDate(dataPoint);
                         List<Field> fields = dataPoint.getDataType().getFields();
                         int value = 0;
@@ -72,6 +72,8 @@ public class HistoryViewModel extends ViewModel {
                         }
                     }
                 }
+
+                System.out.println("1111111111 = " + map);
 
                 if(map != null && map.size() > 0)
                 for (String date : map.keySet()) {
