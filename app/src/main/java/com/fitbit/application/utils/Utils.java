@@ -9,11 +9,11 @@ import com.google.android.gms.fitness.data.DataPoint;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
@@ -65,19 +65,26 @@ public class Utils {
         return dateFormat.format(dataPoint.getEndTime(TimeUnit.MILLISECONDS)) + " " + timeFormat.format(dataPoint.getEndTime(TimeUnit.MILLISECONDS));
     }
 
+    public static String convertstartandDate(DataPoint dataPoint){
+        DateFormat dateFormat = DateFormat.getDateInstance();
+        DateFormat timeFormat = DateFormat.getTimeInstance();
+
+        return dateFormat.format(dataPoint.getStartTime(TimeUnit.MILLISECONDS)) + " " + timeFormat.format(dataPoint.getStartTime(TimeUnit.MILLISECONDS));
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static boolean compareDate(DataPoint dataPoint){
         Date start = new Date(dataPoint.getStartTime(TimeUnit.MILLISECONDS));
         Date end = new Date(dataPoint.getEndTime(TimeUnit.MILLISECONDS));
 
-        LocalDateTime localDate = start.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime localDate = start.toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
         int year  = localDate.getYear();
         int month = localDate.getMonthValue();
         int day   = localDate.getDayOfMonth();
         int hrs   = localDate.getHour();
         int min   = localDate.getMinute();
 
-        LocalDateTime localDate1 = end.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime localDate1 = end.toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
         int year1  = localDate1.getYear();
         int month1 = localDate1.getMonthValue();
         int day1   = localDate1.getDayOfMonth();
@@ -98,4 +105,15 @@ public class Utils {
             return false;
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static LocalDateTime toLocalDateTime(Calendar calendar) {
+        if (calendar == null) {
+            return null;
+        }
+        TimeZone tz = calendar.getTimeZone();
+        ZoneId zid = tz == null ? ZoneId.systemDefault() : tz.toZoneId();
+        return LocalDateTime.ofInstant(calendar.toInstant(), zid);
+    }
+
 }

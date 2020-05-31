@@ -31,7 +31,7 @@ public class HistoryViewModel extends ViewModel {
     public MutableLiveData<List<StepsModel>> getLiveData(Context context) {
         new HistoryFetchTask(context, new IHistoryCallback() {
             @Override
-            public void onComplete(DataReadResponse dataReadResponse) {
+            public void onComplete(ArrayList<DataReadResponse> dataReadResponse) {
                 setDataPoint(dataReadResponse);
             }
         }).execute();
@@ -39,53 +39,61 @@ public class HistoryViewModel extends ViewModel {
         return mLiveData;
     }
 
-    private void setDataPoint(DataReadResponse dataReadResponse) {
+    private void setDataPoint(ArrayList<DataReadResponse> dataReadResponses) {
+        List<StepsModel> stepsModels = new ArrayList<>();
+        for (int k = 0; k < dataReadResponses.size(); k++) {
+            DataReadResponse dataReadResponse = dataReadResponses.get(k);
+            if(dataReadResponse != null) {
+                DataSet dataSet = dataReadResponse.getDataSet(DataType.TYPE_STEP_COUNT_DELTA);
 
-        if(dataReadResponse != null) {
-            DataSet dataSet = dataReadResponse.getDataSet(DataType.TYPE_STEP_COUNT_DELTA);
 
+                if(dataSet != null) {
+                    List<DataPoint> dataPoints = new ArrayList<>(dataSet.getDataPoints());
 
-            if(dataSet != null) {
-                List<StepsModel> stepsModels = new ArrayList<>();
-                List<DataPoint> dataPoints = new ArrayList<>(dataSet.getDataPoints());
+                    if(dataPoints.size() > 0)
+                        for (int i = 0; i < dataPoints.size(); i++) {
+                            DataPoint dataPoint = dataPoints.get(i);
 
-                if(dataPoints.size() > 0)
-                for (int i = 0; i < dataPoints.size(); i++) {
-                    DataPoint dataPoint = dataPoints.get(i);
+                            /*if(!Utils.isToday(dataPoint) && Utils.compareDate(dataPoint)) {*/
+                            String date = Utils.convertStartDate(dataPoint);
+                            List<Field> fields = dataPoint.getDataType().getFields();
+                            int value = 0;
 
-                    if(!Utils.isToday(dataPoint) && Utils.compareDate(dataPoint)) {
-                        String date = Utils.convertStartDate(dataPoint);
-                        List<Field> fields = dataPoint.getDataType().getFields();
-                        int value = 0;
-
-                        if (fields != null && fields.size() > 0)
-                            for (int j = 0; j < fields.size(); j++) {
-                                if (fields.get(j).equals(Field.FIELD_STEPS)) {
-                                    value = dataPoint.getValue(fields.get(j)).asInt();
+                            if (fields != null && fields.size() > 0)
+                                for (int j = 0; j < fields.size(); j++) {
+                                    if (fields.get(j).equals(Field.FIELD_STEPS)) {
+                                        value = dataPoint.getValue(fields.get(j)).asInt();
+                                        String date1 = Utils.convertstartandDate(dataPoint);
+                                        System.out.println("-------------------"+date1);
+                                        System.out.println("-------------------"+value);
+                                    }
                                 }
+
+                            if (map != null && map.containsKey(date)) {
+                                int total = value + map.get(date);
+                                map.put(date, total);
+                            } else {
+                                map.put(date, value);
                             }
-
-                        if (map != null && map.containsKey(date)) {
-                            int total = value + map.get(date);
-                            map.put(date, total);
-                        } else {
-                            map.put(date, value);
+                            /*}*/
                         }
-                    }
-                }
 
-                System.out.println("1111111111 = " + map);
+                    System.out.println("1111111111 = " + map);
 
-                if(map != null && map.size() > 0)
-                for (String date : map.keySet()) {
-                    int value = map.get(date);
-                    StepsModel stepsModel = new StepsModel(date, value);
-                    stepsModels.add(stepsModel);
+
                 }
-                sortDate(stepsModels);
-                mLiveData.setValue(stepsModels);
             }
+
         }
+
+        if(map != null && map.size() > 0)
+            for (String date : map.keySet()) {
+                int value = map.get(date);
+                StepsModel stepsModel = new StepsModel(date, value);
+                stepsModels.add(stepsModel);
+            }
+        sortDate(stepsModels);
+        mLiveData.setValue(stepsModels);
     }
 
     public void sortDate(List<StepsModel> stepsModels){
